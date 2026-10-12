@@ -1,11 +1,11 @@
 {
-    "name": "kombinatorika",
-    "short_name": "kombinatorika",
+    "name": "Kombinatorika shahri",
+    "short_name": "Kombinatorika",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#59B8FF",
+    "theme_color": "#1E5BD8",
+    "description": "O‘yin orqali o‘rganamiz, variantlarni sanaymiz!",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
