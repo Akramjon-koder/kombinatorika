@@ -9,7 +9,6 @@
   "sign_in_title": "Keling, tanishamiz!",
   "sign_in_name": "Ismingni yoz",
   "sign_in_avatar": "Qahramoningni tanla",
-  "sign_in_go": "Shaharga kirish",
   "sign_in_empty": "Avval ismingni yoz 🙂",
   "city_hello": "Salom, {}!",
   "city_progress": "{} / {} masala yechildi",
@@ -53,5 +52,13 @@
   "no": "Yo‘q",
   "answer_label": "Javob: {}",
   "open_problem": "Sinab ko‘rish",
-  "answer_unit": "ta {}"
+  "answer_unit": "ta {}",
+  "sign_in_next": "Davom etish",
+  "grade_title": "Nechanchi sinfda o‘qiysiz?",
+  "grade_sub": "Sinfingizga mos shaharga boramiz",
+  "grade_n": "{}-sinf",
+  "grade_city": "{}-sinf shahri",
+  "teacher_all_grades": "Barcha sinflar",
+  "teacher_grade": "Sinf",
+  "teacher_grade_empty": "Bu sinfda hali hech kim o‘ynamagan."
 }

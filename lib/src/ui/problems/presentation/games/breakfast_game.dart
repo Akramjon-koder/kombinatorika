@@ -8,6 +8,7 @@ import '../../bloc/bloc.dart';
 import '../../model/problem.dart';
 import 'painters/bowl_painter.dart';
 import 'parts/pick_tile.dart';
+import 'parts/table_slot.dart';
 
 /// (name, porridge colour, berries) of the three porridges.
 List<(String, Color, bool)> get _porridges => [
@@ -159,7 +160,7 @@ class _BreakfastGameState extends State<BreakfastGame> {
                         for (var d = 0; d < 3; d++)
                           Padding(
                             padding: 4.all,
-                            child: _Cell(
+                            child: TableSlot(
                               size: cell,
                               filled: found.contains('b$p$d'),
                               flash: last == 'b$p$d',
@@ -178,37 +179,6 @@ class _BreakfastGameState extends State<BreakfastGame> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _Cell extends StatelessWidget {
-  final double size;
-  final bool filled;
-  final bool flash;
-  final Color color;
-  final Widget child;
-
-  const _Cell({required this.size, required this.filled, required this.flash, required this.color, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 350),
-      width: size,
-      height: size * 0.7,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: filled ? (flash ? theme.star.withValues(alpha: 0.45) : theme.white) : theme.surfaceSubtle,
-        borderRadius: 14.circular,
-        border: Border.all(color: filled ? color : theme.slotBorder, width: filled ? 3 : 2),
-        boxShadow: filled ? theme.lifted(color, depth: 0.3) : null,
-      ),
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 400),
-        transitionBuilder: (c, a) => ScaleTransition(scale: CurvedAnimation(parent: a, curve: Curves.elasticOut), child: c),
-        child: filled ? child : Icon(Icons.add_rounded, color: theme.slotBorder, size: 28),
-      ),
     );
   }
 }

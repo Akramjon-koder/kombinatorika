@@ -223,9 +223,9 @@ class _ProblemCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           PillTitle(
-            text: Words.problemN.tr(args: ['${problem.id}']),
+            text: Words.problemN.tr(args: ['${problem.number}']),
             color: problem.color,
-            leading: Text('${problem.id}', style: theme.display(18, color: problem.color)),
+            leading: Text('${problem.number}', style: theme.display(18, color: problem.color)),
           ),
           14.height,
           Text(problem.statement, style: theme.body(19, color: theme.text)),

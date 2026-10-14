@@ -33,11 +33,15 @@ GoRouter buildWebRouter(ProgressRepository progress) => GoRouter(
         ),
         GoRoute(
           path: Routes.problem,
-          // Unknown id (bad / stale URL) → back to the city map.
-          redirect: (context, state) =>
-              Problem.byId(int.tryParse(state.pathParameters['id'] ?? '')) == null
-                  ? Routes.city
-                  : null,
+          // Unknown id (bad / stale URL) or another grade's problem for a
+          // signed-in learner → back to the learner's own city map.
+          redirect: (context, state) {
+            final problem = Problem.byId(int.tryParse(state.pathParameters['id'] ?? ''));
+            final student = progress.current.value;
+            if (problem == null) return Routes.city;
+            if (student != null && student.grade != problem.grade) return Routes.city;
+            return null;
+          },
           builder: (context, state) {
             final problem = Problem.byId(int.parse(state.pathParameters['id']!))!;
             return ProblemScreen(key: ValueKey(problem.id), problem: problem);

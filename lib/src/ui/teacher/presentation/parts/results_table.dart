@@ -6,6 +6,7 @@ import '../../../../constants/string.dart';
 import '../../../../extensions/size_extensions.dart';
 import '../../../../network/progress_repository.dart';
 import '../../../../theme/apptheme.dart';
+import '../../../collectitive/model/grade.dart';
 import '../../../collectitive/model/student.dart';
 import '../../../collectitive/widgets/glass_card.dart';
 import '../../../collectitive/widgets/student_chip.dart';
@@ -14,24 +15,34 @@ import '../dialogs/confirm_delete_dialog.dart';
 import '../teacher_screen.dart';
 
 /// Learners × problems grid: stars per problem (✓ solved), attempts as a
-/// tooltip, and total stars. Sorted by total stars.
+/// tooltip, and total stars. Sorted by total stars. Column N is problem N of
+/// each learner's own grade, so learners of both grades fit one table.
 class ResultsTable extends StatelessWidget {
-  const ResultsTable({super.key});
+  /// Shown grade; `null` lists every learner with a grade column.
+  final Grade? grade;
+
+  const ResultsTable({super.key, required this.grade});
+
+  /// Number of problems in one worksheet (columns 1…N).
+  static int get _columns => Problem.ofGrade(Grade.fourth).length;
 
   Future<void> onTapDelete(BuildContext context, Student s) async {
     final repo = context.read<ProgressRepository>();
     final ok = await showConfirmDeleteDialog(context, s.name);
-    if (ok == true) await repo.deleteStudent(s.name);
+    if (ok == true) await repo.deleteStudent(s);
   }
 
   @override
   Widget build(BuildContext context) {
     final repo = context.read<ProgressRepository>();
+    final heads = grade == null ? null : Problem.ofGrade(grade!);
     return ValueListenableBuilder<List<Student>>(
       valueListenable: repo.students,
       builder: (context, students, _) {
         if (students.isEmpty) return const TeacherEmpty();
-        final sorted = [...students]..sort((a, b) => b.stars.compareTo(a.stars));
+        final shown = students.where((s) => grade == null || s.grade == grade).toList();
+        if (shown.isEmpty) return const TeacherEmpty(text: Words.teacherGradeEmpty);
+        final sorted = shown..sort((a, b) => b.stars.compareTo(a.stars));
         return GlassCard(
           tint: theme.violet,
           padding: 16.all,
@@ -45,13 +56,17 @@ class ResultsTable extends StatelessWidget {
               headingTextStyle: theme.display(17, color: theme.violet),
               columns: [
                 DataColumn(label: Text(Words.teacherStudent.tr())),
-                for (final p in Problem.all)
+                if (grade == null) DataColumn(label: Text(Words.teacherGrade.tr())),
+                for (var n = 1; n <= _columns; n++)
                   DataColumn(
                     label: Tooltip(
-                      message: p.place,
+                      message: heads == null ? Words.problemN.tr(args: ['$n']) : heads[n - 1].place,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [Emoji(p.emoji, size: 18), Text('${p.id}')],
+                        children: [
+                          if (heads != null) Emoji(heads[n - 1].emoji, size: 18),
+                          Text('$n'),
+                        ],
                       ),
                     ),
                   ),
@@ -70,14 +85,22 @@ class ResultsTable extends StatelessWidget {
                           Text(s.name, style: theme.display(18)),
                         ],
                       )),
-                      for (final p in Problem.all) DataCell(_ResultCell(result: s.results[p.id])),
+                      if (grade == null)
+                        DataCell(Text(
+                          Words.gradeN.tr(args: ['${s.grade.number}']),
+                          style: theme.display(17, color: s.grade.color),
+                        )),
+                      for (final p in Problem.ofGrade(s.grade)) DataCell(_ResultCell(result: s.results[p.id])),
                       DataCell(Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Emoji('⭐', size: 18),
                           4.width,
                           Text('${s.stars}', style: theme.display(20, color: theme.secondary)),
-                          Text(' · ${s.solvedCount}/${Problem.all.length}', style: theme.body(14, color: theme.textMuted)),
+                          Text(
+                            ' · ${s.solvedCount}/${Problem.ofGrade(s.grade).length}',
+                            style: theme.body(14, color: theme.textMuted),
+                          ),
                         ],
                       )),
                       DataCell(IconButton(

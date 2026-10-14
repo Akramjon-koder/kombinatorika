@@ -6,26 +6,45 @@ import '../../../../constants/routes.dart';
 import '../../../../constants/string.dart';
 import '../../../../extensions/size_extensions.dart';
 import '../../../../theme/apptheme.dart';
+import '../../../collectitive/model/grade.dart';
 import '../../../collectitive/widgets/clay_button.dart';
 import '../../../collectitive/widgets/glass_card.dart';
 import '../../../problems/model/problem.dart';
 
-/// Every problem with its answer, formula and explanation.
+/// Every problem with its answer, formula and explanation, grouped by grade.
 class AnswerKey extends StatelessWidget {
-  const AnswerKey({super.key});
+  /// Shown grade; `null` shows both worksheets.
+  final Grade? grade;
+
+  const AnswerKey({super.key, required this.grade});
 
   @override
   Widget build(BuildContext context) {
+    final grades = grade == null ? Grade.values : [grade!];
     return LayoutBuilder(
       builder: (context, c) {
         final cols = c.maxWidth > 1000 ? 2 : 1;
         final width = (c.maxWidth - (cols - 1) * 16) / cols;
-        return Wrap(
-          spacing: 16,
-          runSpacing: 16,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final p in Problem.all)
-              SizedBox(width: width, child: _KeyCard(problem: p)),
+            for (final g in grades) ...[
+              PillTitle(
+                text: Words.gradeCity.tr(args: ['${g.number}']),
+                color: g.color,
+                leading: Emoji(g.emoji, size: 18),
+              ),
+              14.height,
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: [
+                  for (final p in Problem.ofGrade(g))
+                    SizedBox(width: width, child: _KeyCard(problem: p)),
+                ],
+              ),
+              24.height,
+            ],
           ],
         );
       },
@@ -49,7 +68,7 @@ class _KeyCard extends StatelessWidget {
             children: [
               Expanded(
                 child: PillTitle(
-                  text: '${problem.id}. ${problem.place}',
+                  text: '${problem.number}. ${problem.place}',
                   color: problem.color,
                   leading: Emoji(problem.emoji, size: 18),
                 ),

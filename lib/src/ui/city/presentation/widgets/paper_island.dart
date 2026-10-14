@@ -21,6 +21,16 @@ const Map<ProblemKind, List<String>> _decor = {
   ProblemKind.routes: ['🌲', '🚩', '🌳'],
   ProblemKind.picnic: ['🥟', '🍊', '🍎'],
   ProblemKind.cups: ['🫖', '🍪', '🌿'],
+  ProblemKind.trails: ['🏡', '🌲', '🦆'],
+  ProblemKind.flowerPots: ['🌷', '🪻', '🌼'],
+  ProblemKind.snackBar: ['🧃', '🥧', '🍪'],
+  ProblemKind.balloons: ['🎁', '🎉', '🎀'],
+  ProblemKind.banknotes: ['👛', '🪙', '💰'],
+  ProblemKind.digitCards: ['🃏', '✏️', '📒'],
+  ProblemKind.chess: ['🏆', '⏱️', '🧠'],
+  ProblemKind.parrots: ['🌴', '🪺', '🍌'],
+  ProblemKind.iceCream: ['🍨', '🍓', '🍫'],
+  ProblemKind.schoolShop: ['✏️', '📏', '📓'],
 };
 
 /// Paper-cut 3D island: several wavy layers stacked with an offset (like the
@@ -106,7 +116,7 @@ class _PaperIslandState extends State<PaperIsland> {
                         ),
                         child: solved
                             ? Icon(Icons.check_rounded, color: theme.white, size: s * 0.13)
-                            : Text('${p.id}', style: theme.display(s * 0.11, color: p.color)),
+                            : Text('${p.number}', style: theme.display(s * 0.11, color: p.color)),
                       ),
                     ),
                     // Name ribbon.

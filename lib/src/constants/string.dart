@@ -11,7 +11,6 @@ abstract final class Words {
   static const String signInTitle = 'sign_in_title';
   static const String signInName = 'sign_in_name';
   static const String signInAvatar = 'sign_in_avatar';
-  static const String signInGo = 'sign_in_go';
   static const String signInEmpty = 'sign_in_empty';
   static const String cityHello = 'city_hello';
   static const String cityProgress = 'city_progress';
@@ -56,4 +55,12 @@ abstract final class Words {
   static const String answerLabel = 'answer_label';
   static const String openProblem = 'open_problem';
   static const String answerUnit = 'answer_unit';
+  static const String signInNext = 'sign_in_next';
+  static const String gradeTitle = 'grade_title';
+  static const String gradeSub = 'grade_sub';
+  static const String gradeN = 'grade_n';
+  static const String gradeCity = 'grade_city';
+  static const String teacherAllGrades = 'teacher_all_grades';
+  static const String teacherGrade = 'teacher_grade';
+  static const String teacherGradeEmpty = 'teacher_grade_empty';
 }

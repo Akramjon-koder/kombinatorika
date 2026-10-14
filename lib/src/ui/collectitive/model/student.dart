@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import 'grade.dart';
+
 /// Best result of one learner on one problem.
 final class ProblemResult extends Equatable {
   /// 0…3 stars (answer right + all variants found + no mistakes).
@@ -54,18 +56,23 @@ final class Student extends Equatable {
   /// Avatar emoji picked on the welcome screen.
   final String avatar;
 
+  /// School grade picked after the name; decides the learner's city.
+  final Grade grade;
+
   /// Results by problem id.
   final Map<int, ProblemResult> results;
 
   const Student({
     required this.name,
     required this.avatar,
+    required this.grade,
     this.results = const {},
   });
 
   factory Student.fromJson(Map<String, dynamic> json) => Student(
         name: json['name'] as String? ?? '',
         avatar: json['avatar'] as String? ?? '🧒',
+        grade: Grade.fromNumber(json['grade'] as int?),
         results: {
           for (final e
               in (json['results'] as Map<String, dynamic>? ?? {}).entries)
@@ -77,6 +84,7 @@ final class Student extends Equatable {
   Map<String, dynamic> toJson() => {
         'name': name,
         'avatar': avatar,
+        'grade': grade.number,
         'results': {
           for (final e in results.entries) '${e.key}': e.value.toJson(),
         },
@@ -88,13 +96,20 @@ final class Student extends Equatable {
   /// Number of solved problems.
   int get solvedCount => results.values.where((r) => r.solved).length;
 
+  /// True when this record is the learner [name] of [grade] (names are
+  /// case-insensitive; the same name may exist in both grades).
+  bool isSame(String name, Grade grade) =>
+      this.grade == grade && this.name.toLowerCase() == name.toLowerCase();
+
+  /// Copy with a new avatar and/or results.
   Student copyWith({String? avatar, Map<int, ProblemResult>? results}) =>
       Student(
         name: name,
         avatar: avatar ?? this.avatar,
+        grade: grade,
         results: results ?? this.results,
       );
 
   @override
-  List<Object?> get props => [name, avatar, results];
+  List<Object?> get props => [name, avatar, grade, results];
 }

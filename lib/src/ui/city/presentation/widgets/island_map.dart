@@ -17,10 +17,16 @@ const List<Offset> _spots = [
 
 /// Wooden-framed treasure map holding the ten islands (wide screens).
 class IslandMap extends StatelessWidget {
+  /// Problems of one grade in worksheet order (at most [_spots] islands).
+  final List<Problem> problems;
+
+  /// Learner's results by problem id (stars, solved flag).
   final Map<int, ProblemResult> results;
+
+  /// Opens a problem.
   final ValueChanged<Problem> onTap;
 
-  const IslandMap({super.key, required this.results, required this.onTap});
+  const IslandMap({super.key, required this.problems, required this.results, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -55,16 +61,16 @@ class IslandMap extends StatelessWidget {
                       top: d.$1.dy * h - 20,
                       child: Emoji(d.$2, size: w * 0.03),
                     ),
-                  for (var i = 0; i < Problem.all.length; i++)
+                  for (var i = 0; i < problems.length; i++)
                     Positioned(
                       left: _spots[i].dx * w - size / 2,
                       top: _spots[i].dy * h - size * 0.5,
                       width: size,
                       height: size * 1.15,
                       child: PaperIsland(
-                        problem: Problem.all[i],
-                        result: results[Problem.all[i].id],
-                        onTap: () => onTap(Problem.all[i]),
+                        problem: problems[i],
+                        result: results[problems[i].id],
+                        onTap: () => onTap(problems[i]),
                       ),
                     ),
                 ],

@@ -10,7 +10,7 @@ import '../../../collectitive/model/student.dart';
 import '../../../collectitive/widgets/clay_button.dart';
 import '../../model/problem.dart';
 
-/// "‹ ● ● ○ ○ ›" pager between problems; solved dots are green.
+/// "‹ ● ● ○ ○ ›" pager between the problems of one grade; solved dots are green.
 class ProblemNav extends StatelessWidget {
   final Problem problem;
 
@@ -18,7 +18,7 @@ class ProblemNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final all = Problem.all;
+    final all = Problem.ofGrade(problem.grade);
     final repo = context.read<ProgressRepository>();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -34,9 +34,9 @@ class ProblemNav extends StatelessWidget {
           children: [
             ClayIconButton(
               icon: Icons.chevron_left_rounded,
-              onTap: problem.id > 1
-                  ? () => context.go(Routes.problemOf(problem.id - 1))
-                  : null,
+              onTap: problem.previous == null
+                  ? null
+                  : () => context.go(Routes.problemOf(problem.previous!.id)),
             ),
             12.width,
             for (final p in all)
@@ -63,9 +63,9 @@ class ProblemNav extends StatelessWidget {
             12.width,
             ClayIconButton(
               icon: Icons.chevron_right_rounded,
-              onTap: problem.id < all.length
-                  ? () => context.go(Routes.problemOf(problem.id + 1))
-                  : null,
+              onTap: problem.next == null
+                  ? null
+                  : () => context.go(Routes.problemOf(problem.next!.id)),
             ),
           ],
         ),

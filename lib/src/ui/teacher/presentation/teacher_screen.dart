@@ -6,6 +6,7 @@ import '../../../constants/routes.dart';
 import '../../../constants/string.dart';
 import '../../../extensions/size_extensions.dart';
 import '../../../theme/apptheme.dart';
+import '../../collectitive/model/grade.dart';
 import '../../collectitive/widgets/clay_button.dart';
 import '../../collectitive/widgets/glass_card.dart';
 import '../../collectitive/widgets/scene_background.dart';
@@ -14,7 +15,8 @@ import 'parts/answer_key.dart';
 import 'parts/results_table.dart';
 
 /// Teacher room: results of every learner who played on this device and the
-/// answer key with explanations (each problem can be tried from here).
+/// answer key with explanations (each problem can be tried from here). Both
+/// tabs are filtered by the selected grade.
 class TeacherScreen extends StatefulWidget {
   const TeacherScreen({super.key});
 
@@ -24,6 +26,9 @@ class TeacherScreen extends StatefulWidget {
 
 class _TeacherScreenState extends State<TeacherScreen> {
   int _tab = 0;
+
+  /// Grade filter of both tabs; `null` shows every grade.
+  Grade? _grade;
 
   @override
   Widget build(BuildContext context) {
@@ -93,12 +98,29 @@ class _TeacherScreenState extends State<TeacherScreen> {
                         ),
                       ],
                     ),
+                    12.height,
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        for (final g in <Grade?>[null, ...Grade.values])
+                          _TabButton(
+                            text: g == null ? Words.teacherAllGrades.tr() : Words.gradeN.tr(args: ['${g.number}']),
+                            icon: g == null ? Icons.groups_rounded : Icons.school_rounded,
+                            color: g?.color ?? theme.primary,
+                            small: true,
+                            selected: _grade == g,
+                            onTap: () => setState(() => _grade = g),
+                          ),
+                      ],
+                    ),
                     18.height,
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
                       child: _tab == 0
-                          ? const ResultsTable(key: ValueKey('results'))
-                          : const AnswerKey(key: ValueKey('key')),
+                          ? ResultsTable(key: ValueKey('results$_grade'), grade: _grade)
+                          : AnswerKey(key: ValueKey('key$_grade'), grade: _grade),
                     ),
                   ],
                 ),
@@ -111,26 +133,50 @@ class _TeacherScreenState extends State<TeacherScreen> {
   }
 }
 
+/// Toggle button of the tab bar and of the grade filter.
 class _TabButton extends StatelessWidget {
+  /// Caption.
   final String text;
+
+  /// Leading icon.
   final IconData icon;
+
+  /// Whether this tab / filter is active.
   final bool selected;
+
+  /// Activates the tab / filter.
   final VoidCallback onTap;
 
-  const _TabButton({required this.text, required this.icon, required this.selected, required this.onTap});
+  /// Colour when selected (grey otherwise).
+  final Color? color;
+
+  /// Smaller variant used by the grade filter.
+  final bool small;
+
+  const _TabButton({
+    required this.text,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+    this.color,
+    this.small = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ClayButton(
-      color: selected ? theme.violet : theme.textHint,
+      color: selected ? color ?? theme.violet : theme.textHint,
       onTap: onTap,
-      depth: selected ? 6 : 3,
+      depth: selected ? (small ? 4 : 6) : 3,
+      padding: small
+          ? const EdgeInsets.symmetric(horizontal: 16, vertical: 8)
+          : const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon),
+          Icon(icon, size: small ? 20 : null),
           8.width,
-          Text(text, style: theme.display(19, color: theme.white)),
+          Text(text, style: theme.display(small ? 17 : 19, color: theme.white)),
         ],
       ),
     );
@@ -139,7 +185,10 @@ class _TabButton extends StatelessWidget {
 
 /// Re-exported for parts: an empty-state card.
 class TeacherEmpty extends StatelessWidget {
-  const TeacherEmpty({super.key});
+  /// Translation key of the message.
+  final String text;
+
+  const TeacherEmpty({super.key, this.text = Words.teacherEmpty});
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +199,7 @@ class TeacherEmpty extends StatelessWidget {
           const Emoji('📭', size: 60),
           10.height,
           Text(
-            Words.teacherEmpty.tr(),
+            text.tr(),
             textAlign: TextAlign.center,
             style: theme.body(17, color: theme.textMuted),
           ),

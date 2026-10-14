@@ -9,6 +9,9 @@ import '../ui/collectitive/model/student.dart';
 class SharedPrefService {
   static const String _students = 'students';
   static const String _currentStudent = 'current_student';
+
+  /// Key of the signed-in learner's grade number.
+  static const String _currentGrade = 'current_grade';
   static late SharedPreferences _preference;
 
   const SharedPrefService._();
@@ -40,7 +43,17 @@ class SharedPrefService {
   ///Current learner name
   String? getCurrentStudent() => _preference.getString(_currentStudent);
 
-  Future<bool> setCurrentStudent(String? name) async => name == null
-      ? await _preference.remove(_currentStudent)
-      : await _preference.setString(_currentStudent, name);
+  ///Current learner grade number (`null` for legacy data)
+  int? getCurrentGrade() => _preference.getInt(_currentGrade);
+
+  /// Stores (or clears, when [name] is `null`) the signed-in learner.
+  Future<void> setCurrentStudent(String? name, {int? grade}) async {
+    if (name == null) {
+      await _preference.remove(_currentStudent);
+      await _preference.remove(_currentGrade);
+      return;
+    }
+    await _preference.setString(_currentStudent, name);
+    if (grade != null) await _preference.setInt(_currentGrade, grade);
+  }
 }

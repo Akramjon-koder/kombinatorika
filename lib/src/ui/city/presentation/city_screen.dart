@@ -8,6 +8,7 @@ import '../../../constants/string.dart';
 import '../../../extensions/size_extensions.dart';
 import '../../../network/progress_repository.dart';
 import '../../../theme/apptheme.dart';
+import '../../collectitive/model/grade.dart';
 import '../../collectitive/model/student.dart';
 import '../../collectitive/widgets/brand_logo.dart';
 import '../../collectitive/widgets/clay_button.dart';
@@ -20,8 +21,9 @@ import 'widgets/island_map.dart';
 import 'widgets/paper_island.dart';
 
 /// City map (see `resources/12.jpg` + the wooden-map idea of `examplee.jpg`):
-/// every worksheet problem is a paper-cut island on a treasure map, linked by
-/// a dashed trail in worksheet order.
+/// every problem of the learner's grade worksheet is a paper-cut island on a
+/// treasure map, linked by a dashed trail in worksheet order. Each grade has
+/// its own city (own problems, own sky tint).
 class CityScreen extends StatelessWidget {
   const CityScreen({super.key});
 
@@ -32,14 +34,18 @@ class CityScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repo = context.read<ProgressRepository>();
-    return Scaffold(
-      body: SceneBackground(
-        child: SafeArea(
-          child: ValueListenableBuilder<Student?>(
-            valueListenable: repo.current,
-            builder: (context, student, _) {
-              final results = student?.results ?? const {};
-              return LayoutBuilder(
+    return ValueListenableBuilder<Student?>(
+      valueListenable: repo.current,
+      builder: (context, student, _) {
+        // The router leaves this screen as soon as nobody is signed in.
+        final grade = student?.grade ?? Grade.third;
+        final problems = Problem.ofGrade(grade);
+        final results = student?.results ?? const <int, ProblemResult>{};
+        return Scaffold(
+          body: SceneBackground(
+            tint: grade == Grade.fourth ? grade.color : null,
+            child: SafeArea(
+              child: LayoutBuilder(
                 builder: (context, c) {
                   final wide = c.maxWidth > 980;
                   return SingleChildScrollView(
@@ -55,10 +61,11 @@ class CityScreen extends StatelessWidget {
                               onTapSignOut: () => onTapSignOut(context),
                             ),
                             18.height,
-                            _Greeting(student: student),
+                            _Greeting(student: student, problems: problems),
                             18.height,
                             if (wide)
                               IslandMap(
+                                problems: problems,
                                 results: results,
                                 onTap: (p) => context.go(Routes.problemOf(p.id)),
                               )
@@ -68,7 +75,7 @@ class CityScreen extends StatelessWidget {
                                 runSpacing: 22,
                                 alignment: WrapAlignment.center,
                                 children: [
-                                  for (final p in Problem.all)
+                                  for (final p in problems)
                                     SizedBox(
                                       width: 170,
                                       height: 200,
@@ -86,11 +93,11 @@ class CityScreen extends StatelessWidget {
                     ),
                   );
                 },
-              );
-            },
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -153,16 +160,21 @@ class _Header extends StatelessWidget {
   }
 }
 
-/// "Salom, Madina!" + overall progress bar.
+/// "Salom, Madina!" + the grade's city badge + progress bar.
 class _Greeting extends StatelessWidget {
+  /// Signed-in learner.
   final Student? student;
 
-  const _Greeting({required this.student});
+  /// Problems of the learner's grade (the islands on the map).
+  final List<Problem> problems;
+
+  const _Greeting({required this.student, required this.problems});
 
   @override
   Widget build(BuildContext context) {
-    final solved = student?.solvedCount ?? 0;
-    final total = Problem.all.length;
+    final grade = student?.grade ?? Grade.third;
+    final solved = problems.where((p) => student?.results[p.id]?.solved ?? false).length;
+    final total = problems.length;
     return GlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
       child: Wrap(
@@ -173,6 +185,11 @@ class _Greeting extends StatelessWidget {
           Text(
             Words.cityHello.tr(args: [student?.name ?? '']),
             style: theme.display(28),
+          ),
+          PillTitle(
+            text: Words.gradeCity.tr(args: ['${grade.number}']),
+            color: grade.color,
+            leading: Emoji(grade.emoji, size: 18),
           ),
           SizedBox(
             width: 280,

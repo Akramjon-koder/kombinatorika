@@ -71,12 +71,12 @@ Future<void> showSolvedDialog(BuildContext context, Problem problem, int stars) 
                         ],
                       ),
                     ),
-                    if (problem.id < Problem.all.length)
+                    if (problem.next != null)
                       ClayButton(
                         color: theme.green,
                         onTap: () {
                           Navigator.of(dialogContext).pop();
-                          context.go(Routes.problemOf(problem.id + 1));
+                          context.go(Routes.problemOf(problem.next!.id));
                         },
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
